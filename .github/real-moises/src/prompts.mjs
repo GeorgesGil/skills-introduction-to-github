@@ -6,7 +6,7 @@ export function buildPhasePrompt(phase, { issue, plan = "", validation = "" }) {
     return `${boundary}\nDo not modify files or run commands. Produce a concise concrete implementation plan with validation steps and explicit risks.${context}`;
   }
   if (phase === "implement") {
-    return `${boundary}\nImplement the approved plan as one focused behavioral change. Use TDD where practical and run only targeted local checks. Do not merely describe the solution.\n\n--- APPROVED PLAN ---\n${plan}\n--- END APPROVED PLAN ---${context}`;
+    return `${boundary}\nImplement the approved plan as one focused behavioral change. The planning phase already performed broad research. Do not repeat exhaustive repository or skill discovery; inspect only the files needed for the approved plan and begin concrete edits early. Use TDD where practical and run only targeted local checks. Do not merely describe the solution.\n\n--- APPROVED PLAN ---\n${plan}\n--- END APPROVED PLAN ---${context}`;
   }
   if (phase === "repair") {
     return `${boundary}\nPerform one bounded repair attempt for the validation failure. Inspect the existing diff, fix only the demonstrated failure, and rerun a targeted check.\n\n--- APPROVED PLAN ---\n${plan}\n--- END APPROVED PLAN ---\n\n--- VALIDATION FAILURE ---\n${validation}\n--- END VALIDATION FAILURE ---${context}`;

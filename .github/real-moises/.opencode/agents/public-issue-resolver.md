@@ -3,7 +3,7 @@ description: Implement one approved issue plan in an opted-in public test reposi
 mode: primary
 model: opencode-go/deepseek-v4-flash
 temperature: 0.1
-steps: 30
+steps: 90
 permission:
   edit:
     "*": allow

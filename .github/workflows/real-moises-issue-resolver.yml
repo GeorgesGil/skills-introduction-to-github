@@ -42,6 +42,10 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: node .github/real-moises/scripts/orchestrate.mjs implement
+      - name: Ensure implementation produced changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node .github/real-moises/scripts/assert-workspace-changes.mjs
       - name: Prepare deterministic project dependencies
         run: node .github/real-moises/scripts/prepare-workspace.mjs
       - name: Validate implementation
