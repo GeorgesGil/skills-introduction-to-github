@@ -2,17 +2,19 @@
   "schemaVersion": 1,
   "infrastructure": {
     "repository": "GeorgesGil/github-agent-automations",
-    "sha": "3b77c60a04406bc9a3fcaf90e9218f6cb4f0cb9c"
+    "sha": "12879dc34a0826f6fe2633c3bc2b536711fd32b8"
   },
   "enrollment": {
     "mode": "public-test-opt-in",
     "source": "central-scanner"
   },
   "stack": {
-    "languages": [],
+    "languages": [
+      "javascript/typescript"
+    ],
     "frameworks": [],
     "packageManager": null,
-    "runtime": null,
+    "runtime": "Node.js",
     "monorepo": false,
     "build": false,
     "tests": false,
