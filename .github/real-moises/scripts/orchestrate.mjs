@@ -22,11 +22,10 @@ if (!agent) throw new Error(`unsupported phase: ${phase}`);
 const environment = { ...process.env,
   OPENCODE_CONFIG: path.join(runtimeRoot, "opencode.json"),
   OPENCODE_CONFIG_DIR: path.join(runtimeRoot, ".opencode"),
-  OPENCODE_DISABLE_AUTOUPDATE: "true",
-  OPENCODE_DISABLE_DEFAULT_PLUGINS: "true"
+  OPENCODE_DISABLE_AUTOUPDATE: "true"
 };
 for (const name of ["GH_TOKEN", "GITHUB_TOKEN", "ACTIONS_ID_TOKEN_REQUEST_TOKEN", "ACTIONS_ID_TOKEN_REQUEST_URL"]) delete environment[name];
-const result = spawnSync(binary, ["run", prompt, "--model", "opencode-go/deepseek-v4-flash", "--agent", agent, "--format", "default", "--dir", workspace, "--title", `Real Moises issue #${event.issue.number}: ${phase}`], {
+const result = spawnSync(binary, ["--pure", "run", prompt, "--model", "opencode-go/deepseek-v4-flash", "--agent", agent, "--format", "default", "--dir", workspace, "--title", `Real Moises issue #${event.issue.number}: ${phase}`], {
   cwd: workspace,
   env: environment,
   encoding: "utf8",
