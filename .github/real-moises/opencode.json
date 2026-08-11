@@ -1,0 +1,34 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/deepseek-v4-flash",
+  "small_model": "opencode-go/deepseek-v4-flash",
+  "autoupdate": false,
+  "share": "disabled",
+  "enabled_providers": ["opencode-go"],
+  "permission": {
+    "*": "deny",
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow",
+      "*credentials*": "deny",
+      "*secrets*": "deny",
+      "*.pem": "deny",
+      "*.key": "deny"
+    },
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "lsp": "allow",
+    "edit": "deny",
+    "bash": "deny",
+    "task": "deny",
+    "external_directory": "deny",
+    "webfetch": "deny",
+    "websearch": "deny",
+    "question": "deny",
+    "doom_loop": "deny",
+    "skill": "deny"
+  }
+}

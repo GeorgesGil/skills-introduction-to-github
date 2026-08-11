@@ -1,0 +1,71 @@
+name: real-moises-issue-resolver
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: real-moises-issue-${{ github.repository }}-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    if: github.event.label.name == 'ready-for-agent'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout trusted default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+      - name: Install pinned OpenCode runtime
+        run: npm ci --omit=dev --no-audit --no-fund --prefix .github/real-moises
+      - name: Present implementation plan
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        run: node .github/real-moises/scripts/orchestrate.mjs plan
+      - name: Publish plan to issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node .github/real-moises/scripts/comment-plan.mjs
+      - name: Implement planned solution
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        run: node .github/real-moises/scripts/orchestrate.mjs implement
+      - name: Prepare deterministic project dependencies
+        run: node .github/real-moises/scripts/prepare-workspace.mjs
+      - name: Validate implementation
+        id: validate
+        continue-on-error: true
+        run: node .github/real-moises/scripts/validate-workspace.mjs
+      - name: Automatic review and repair
+        id: repair
+        if: steps.validate.outcome == 'failure'
+        continue-on-error: true
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        run: node .github/real-moises/scripts/orchestrate.mjs repair
+      - name: Revalidate repaired implementation
+        id: revalidate
+        if: steps.validate.outcome == 'failure' && steps.repair.outcome == 'success'
+        continue-on-error: true
+        run: node .github/real-moises/scripts/validate-workspace.mjs
+      - name: Publish PR and merge after green validation
+        if: steps.validate.outcome == 'success' || (steps.repair.outcome == 'success' && steps.revalidate.outcome == 'success')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node .github/real-moises/scripts/publish-and-merge.mjs
+      - name: Record unresolved validation failure
+        if: steps.validate.outcome == 'failure' && (steps.repair.outcome == 'failure' || steps.revalidate.outcome == 'failure')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node .github/real-moises/scripts/report-failure.mjs
