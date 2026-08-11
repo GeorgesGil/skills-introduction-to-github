@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "infrastructure": {
     "repository": "GeorgesGil/github-agent-automations",
-    "sha": "e98dd433c5babf455f0da5d4e23dd7ee3e7f1254"
+    "sha": "2fe6a352145033d99e4a91b6176ed8f29b2600cc"
   },
   "enrollment": {
     "mode": "public-test-opt-in",
