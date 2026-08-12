@@ -122,6 +122,6 @@ export async function routePlannedIssue({ repository, parentIssue, plan, request
 async function dispatchIssue({ base, issueNumber, issueTitle, defaultBranch, request }) {
   await request(`${base}/actions/workflows/real-moises-issue-resolver.yml/dispatches`, {
     method: "POST",
-    body: { ref: defaultBranch, inputs: { issue_number: String(issueNumber), issue_title: String(issueTitle || `Issue #${issueNumber}`).slice(0, 120) } }
+    body: { ref: defaultBranch, inputs: { issue_number: String(issueNumber), issue_title: String(issueTitle || `Issue #${issueNumber}`) } }
   });
 }
