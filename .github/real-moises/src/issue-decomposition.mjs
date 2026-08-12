@@ -115,13 +115,13 @@ export async function routePlannedIssue({ repository, parentIssue, plan, request
     });
   }
   if (!defaultBranch) throw new Error("default branch is required to dispatch the first sub-issue");
-  await dispatchIssue({ base, issueNumber: numbers[0], defaultBranch, request });
+  await dispatchIssue({ base, issueNumber: numbers[0], issueTitle: children[0].title || decomposition.issues[0].title, defaultBranch, request });
   return { action: "split", children: numbers };
 }
 
-async function dispatchIssue({ base, issueNumber, defaultBranch, request }) {
+async function dispatchIssue({ base, issueNumber, issueTitle, defaultBranch, request }) {
   await request(`${base}/actions/workflows/real-moises-issue-resolver.yml/dispatches`, {
     method: "POST",
-    body: { ref: defaultBranch, inputs: { issue_number: String(issueNumber) } }
+    body: { ref: defaultBranch, inputs: { issue_number: String(issueNumber), issue_title: String(issueTitle || `Issue #${issueNumber}`).slice(0, 120) } }
   });
 }

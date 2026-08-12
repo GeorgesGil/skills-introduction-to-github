@@ -1,0 +1,20 @@
+{
+  "repository": "mattpocock/skills",
+  "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+  "license": "MIT",
+  "sha256": {
+    "code-review/SKILL.md": "9cf46653dd9c710ea1e6c22423caf31a794c88773bc94bdaa23140277f470442",
+    "diagnosing-bugs/SKILL.md": "b9339b09ee3980808d8c5a35c7251b891b8b1e0036ec4ca37812b976ebddf6b6"
+  },
+  "paths": {
+    "code-review": "skills/engineering/code-review",
+    "tdd": "skills/engineering/tdd",
+    "diagnosing-bugs": "skills/engineering/diagnosing-bugs",
+    "codebase-design": "skills/engineering/codebase-design",
+    "domain-modeling": "skills/engineering/domain-modeling",
+    "research": "skills/engineering/research",
+    "resolving-merge-conflicts": "skills/engineering/resolving-merge-conflicts",
+    "triage": "skills/engineering/triage",
+    "setup-matt-pocock-skills": "skills/engineering/setup-matt-pocock-skills"
+  }
+}

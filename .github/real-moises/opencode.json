@@ -15,9 +15,13 @@
       "*credentials*": "deny",
       "*secrets*": "deny",
       "*.pem": "deny",
-      "*.key": "deny"
+      "*.key": "deny",
+      "*SKILL.md": "deny"
     },
-    "glob": "allow",
+    "glob": {
+      "*": "allow",
+      "*SKILL.md*": "deny"
+    },
     "grep": "allow",
     "list": "allow",
     "lsp": "allow",

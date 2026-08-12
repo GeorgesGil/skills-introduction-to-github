@@ -36,7 +36,7 @@ async function advanceParent({ repository, issueNumber, request, defaultBranch }
     if (!defaultBranch) throw new Error("default branch is required to dispatch the next sub-issue");
     await request(`${base}/actions/workflows/real-moises-issue-resolver.yml/dispatches`, {
       method: "POST",
-      body: { ref: defaultBranch, inputs: { issue_number: String(sibling.number) } }
+      body: { ref: defaultBranch, inputs: { issue_number: String(sibling.number), issue_title: String(sibling.title || `Issue #${sibling.number}`).slice(0, 120) } }
     });
     return;
   }
