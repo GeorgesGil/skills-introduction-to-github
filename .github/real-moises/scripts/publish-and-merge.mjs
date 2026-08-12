@@ -4,6 +4,7 @@ import path from "node:path";
 import process from "node:process";
 import { evaluateChangeSet } from "../src/policy.mjs";
 import { mergeWithRetry } from "../src/merge.mjs";
+import { completeResolvedIssue } from "../src/issue-completion.mjs";
 
 const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
 const event = JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH, "utf8"));
@@ -37,7 +38,12 @@ const pull = await github(`/repos/${event.repository.full_name}/pulls`, { method
   head: branch,
   base: event.repository.default_branch
 } });
-await mergeWithRetry({ attempt: () => mergePullRequest(pull.number) });
+await completeResolvedIssue({
+  repository: event.repository.full_name,
+  issueNumber: event.issue.number,
+  merge: () => mergeWithRetry({ attempt: () => mergePullRequest(pull.number) }),
+  request: github
+});
 await comment(`Real Moises implementó, validó y fusionó automáticamente #${pull.number}.`);
 
 function git(args) { const result = spawnSync("git", args, { cwd: workspace, encoding: "utf8", timeout: 2 * 60_000, maxBuffer: 1024 * 1024 }); if (result.error) throw result.error; if (result.status !== 0) throw new Error(`git ${args[0]} failed: ${(result.stderr || "").slice(-2000)}`); return result.stdout || ""; }
@@ -51,4 +57,4 @@ async function mergePullRequest(number) {
   });
   return { status: response.status, data: await response.json().catch(() => ({})) };
 }
-async function github(endpoint, { method, body }) { const response = await fetch(`https://api.github.com${endpoint}`, { method, headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${process.env.GH_TOKEN}`, "Content-Type": "application/json", "X-GitHub-Api-Version": "2022-11-28" }, body: JSON.stringify(body) }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(`GitHub ${method} ${endpoint} failed: ${response.status}`); return data; }
+async function github(endpoint, { method, body, allowNotFound = false }) { const response = await fetch(`https://api.github.com${endpoint}`, { method, headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${process.env.GH_TOKEN}`, "Content-Type": "application/json", "X-GitHub-Api-Version": "2022-11-28" }, body: body === undefined ? undefined : JSON.stringify(body) }); const data = await response.json().catch(() => ({})); if (!response.ok && !(allowNotFound && response.status === 404)) throw new Error(`GitHub ${method} ${endpoint} failed: ${response.status}`); return data; }
