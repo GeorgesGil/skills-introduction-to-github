@@ -1,5 +1,5 @@
 name: real-moises-issue-resolver
-run-name: ${{ github.event.issue.title || inputs.issue_title || format('Issue #{0}', inputs.issue_number) }}
+run-name: "${{ github.event.issue.title || inputs.issue_title || format('Issue #{0}', inputs.issue_number) }}"
 
 on:
   issues:
