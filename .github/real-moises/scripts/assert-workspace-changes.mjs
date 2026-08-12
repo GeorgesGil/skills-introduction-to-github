@@ -31,7 +31,7 @@ async function comment(body) {
       Accept: "application/vnd.github+json",
       Authorization: `Bearer ${process.env.GH_TOKEN}`,
       "Content-Type": "application/json",
-      "X-GitHub-Api-Version": "2022-11-28"
+      "X-GitHub-Api-Version": "2026-03-10"
     },
     body: JSON.stringify({ body })
   });
