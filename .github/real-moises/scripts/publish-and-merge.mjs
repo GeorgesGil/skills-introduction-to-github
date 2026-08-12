@@ -7,7 +7,7 @@ import { mergeWithRetry } from "../src/merge.mjs";
 import { completeResolvedIssue } from "../src/issue-completion.mjs";
 
 const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
-const event = JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH, "utf8"));
+const event = JSON.parse(await readFile(process.env.REAL_MOISES_EVENT_PATH || process.env.GITHUB_EVENT_PATH, "utf8"));
 const stateRoot = path.join(process.env.RUNNER_TEMP, "real-moises", String(process.env.GITHUB_RUN_ID));
 const validation = JSON.parse(await readFile(path.join(stateRoot, "validation.json"), "utf8"));
 const plan = await readFile(path.join(stateRoot, "plan.md"), "utf8");
@@ -42,7 +42,8 @@ await completeResolvedIssue({
   repository: event.repository.full_name,
   issueNumber: event.issue.number,
   merge: () => mergeWithRetry({ attempt: () => mergePullRequest(pull.number) }),
-  request: github
+  request: github,
+  defaultBranch: event.repository.default_branch
 });
 await comment(`Real Moises implementó, validó y fusionó automáticamente #${pull.number}.`);
 

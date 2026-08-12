@@ -1,7 +1,7 @@
-export async function completeResolvedIssue({ repository, issueNumber, merge, request }) {
+export async function completeResolvedIssue({ repository, issueNumber, merge, request, defaultBranch }) {
   await merge();
   await closeIssue({ repository, issueNumber, request });
-  await advanceParent({ repository, issueNumber, request });
+  await advanceParent({ repository, issueNumber, request, defaultBranch });
 }
 
 async function closeIssue({ repository, issueNumber, request }) {
@@ -15,7 +15,7 @@ async function closeIssue({ repository, issueNumber, request }) {
   });
 }
 
-async function advanceParent({ repository, issueNumber, request }) {
+async function advanceParent({ repository, issueNumber, request, defaultBranch }) {
   const base = `/repos/${repository}`;
   const parent = await request(`${base}/issues/${issueNumber}/parent`, { allowNotFound: true });
   if (!parent?.number) return;
@@ -33,11 +33,16 @@ async function advanceParent({ repository, issueNumber, request }) {
         body: { labels: ["ready-for-agent"] }
       });
     }
+    if (!defaultBranch) throw new Error("default branch is required to dispatch the next sub-issue");
+    await request(`${base}/actions/workflows/real-moises-issue-resolver.yml/dispatches`, {
+      method: "POST",
+      body: { ref: defaultBranch, inputs: { issue_number: String(sibling.number) } }
+    });
     return;
   }
 
   if (openSiblings.length > 0) return;
 
   await closeIssue({ repository, issueNumber: parent.number, request });
-  await advanceParent({ repository, issueNumber: parent.number, request });
+  await advanceParent({ repository, issueNumber: parent.number, request, defaultBranch });
 }

@@ -3,14 +3,15 @@ import path from "node:path";
 import process from "node:process";
 import { routePlannedIssue } from "../src/issue-decomposition.mjs";
 
-const event = JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH, "utf8"));
+const event = JSON.parse(await readFile(process.env.REAL_MOISES_EVENT_PATH || process.env.GITHUB_EVENT_PATH, "utf8"));
 const stateRoot = path.join(process.env.RUNNER_TEMP, "real-moises", String(process.env.GITHUB_RUN_ID));
 const plan = await readFile(path.join(stateRoot, "plan.md"), "utf8");
 const result = await routePlannedIssue({
   repository: event.repository.full_name,
   parentIssue: event.issue,
   plan,
-  request: github
+  request: github,
+  defaultBranch: event.repository.default_branch
 });
 await appendFile(process.env.GITHUB_OUTPUT, `should_implement=${result.action === "implement"}\n`);
 process.stdout.write(result.action === "implement"
