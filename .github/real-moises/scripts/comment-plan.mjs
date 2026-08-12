@@ -14,4 +14,4 @@ async function github(endpoint, { method, body }) {
   const response = await fetch(`https://api.github.com${endpoint}`, { method, headers: headers(), body: JSON.stringify(body) });
   if (!response.ok) throw new Error(`GitHub comment failed: ${response.status}`);
 }
-function headers() { return { Accept: "application/vnd.github+json", Authorization: `Bearer ${process.env.GH_TOKEN}`, "Content-Type": "application/json", "X-GitHub-Api-Version": "2022-11-28" }; }
+function headers() { return { Accept: "application/vnd.github+json", Authorization: `Bearer ${process.env.GH_TOKEN}`, "Content-Type": "application/json", "X-GitHub-Api-Version": "2026-03-10" }; }
