@@ -70,13 +70,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: node .github/real-moises/scripts/assert-workspace-changes.mjs
-      - name: Prepare deterministic project dependencies
-        if: steps.route.outputs.should_implement == 'true'
-        run: node .github/real-moises/scripts/prepare-workspace.mjs
       - name: Validate implementation
         id: validate
         if: steps.route.outputs.should_implement == 'true'
         continue-on-error: true
+        env:
+          REAL_MOISES_SYNC_OUTPUTS: "true"
         run: node .github/real-moises/scripts/validate-workspace.mjs
       - name: Automatic trusted-skill review and repair
         id: repair
