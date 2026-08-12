@@ -5,9 +5,11 @@ import process from "node:process";
 import { evaluateChangeSet } from "../src/policy.mjs";
 import { mergeWithRetry } from "../src/merge.mjs";
 import { completeResolvedIssue } from "../src/issue-completion.mjs";
+import { createGitHubRequest } from "../src/github-request.mjs";
 
 const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
 const event = JSON.parse(await readFile(process.env.REAL_MOISES_EVENT_PATH || process.env.GITHUB_EVENT_PATH, "utf8"));
+const github = createGitHubRequest({ token: process.env.GH_TOKEN });
 const stateRoot = path.join(process.env.RUNNER_TEMP, "real-moises", String(process.env.GITHUB_RUN_ID));
 const validation = JSON.parse(await readFile(path.join(stateRoot, "validation.json"), "utf8"));
 const plan = await readFile(path.join(stateRoot, "plan.md"), "utf8");
@@ -58,4 +60,3 @@ async function mergePullRequest(number) {
   });
   return { status: response.status, data: await response.json().catch(() => ({})) };
 }
-async function github(endpoint, { method, body, allowNotFound = false }) { const response = await fetch(`https://api.github.com${endpoint}`, { method, headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${process.env.GH_TOKEN}`, "Content-Type": "application/json", "X-GitHub-Api-Version": "2026-03-10" }, body: body === undefined ? undefined : JSON.stringify(body) }); const data = await response.json().catch(() => ({})); if (!response.ok && !(allowNotFound && response.status === 404)) throw new Error(`GitHub ${method} ${endpoint} failed: ${response.status}`); return data; }
