@@ -3,20 +3,27 @@ name: real-moises-issue-resolver
 on:
   issues:
     types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Issue number to resolve
+        required: true
+        type: string
 
 concurrency:
-  group: real-moises-issue-${{ github.repository }}-${{ github.event.issue.number }}
+  group: real-moises-issue-${{ github.repository }}-${{ github.event.issue.number || inputs.issue_number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   resolve:
-    if: github.event.label.name == 'ready-for-agent'
+    if: (github.event_name == 'issues' && github.event.label.name == 'ready-for-agent') || (github.event_name == 'workflow_dispatch' && inputs.issue_number != '')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       contents: write
       pull-requests: write
       issues: write
+      actions: write
     steps:
       - name: Checkout trusted default branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -28,6 +35,11 @@ jobs:
         with:
           node-version: 24
           package-manager-cache: false
+      - name: Hydrate dispatched issue event
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REAL_MOISES_ISSUE_NUMBER: ${{ inputs.issue_number || '' }}
+        run: node .github/real-moises/scripts/hydrate-event.mjs
       - name: Install pinned OpenCode runtime
         run: npm ci --omit=dev --no-audit --no-fund --prefix .github/real-moises
       - name: Present implementation plan

@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
-const event = JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH, "utf8"));
+const event = JSON.parse(await readFile(process.env.REAL_MOISES_EVENT_PATH || process.env.GITHUB_EVENT_PATH, "utf8"));
 const stateRoot = path.join(process.env.RUNNER_TEMP, "real-moises", String(process.env.GITHUB_RUN_ID));
 const plan = await readFile(path.join(stateRoot, "plan.md"), "utf8");
 await github(`/repos/${event.repository.full_name}/issues/${event.issue.number}/comments`, {

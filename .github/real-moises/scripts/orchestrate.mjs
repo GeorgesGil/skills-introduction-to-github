@@ -10,7 +10,7 @@ const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
 const runtimeRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const stateRoot = path.join(process.env.RUNNER_TEMP || workspace, "real-moises", String(process.env.GITHUB_RUN_ID || "local"));
 await mkdir(stateRoot, { recursive: true });
-const event = JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH, "utf8"));
+const event = JSON.parse(await readFile(process.env.REAL_MOISES_EVENT_PATH || process.env.GITHUB_EVENT_PATH, "utf8"));
 const planPath = path.join(stateRoot, "plan.md");
 const validationPath = path.join(stateRoot, "validation.log");
 const plan = phase === "plan" ? "" : await readFile(planPath, "utf8");

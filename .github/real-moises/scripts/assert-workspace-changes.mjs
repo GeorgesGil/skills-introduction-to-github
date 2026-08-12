@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import process from "node:process";
 
 const workspace = process.env.GITHUB_WORKSPACE || process.cwd();
-const event = JSON.parse(await readFile(process.env.GITHUB_EVENT_PATH, "utf8"));
+const event = JSON.parse(await readFile(process.env.REAL_MOISES_EVENT_PATH || process.env.GITHUB_EVENT_PATH, "utf8"));
 const tracked = lines(git(["diff", "--name-only"]));
 const untracked = lines(git(["ls-files", "--others", "--exclude-standard"]));
 

@@ -30,7 +30,7 @@ export function parseDecomposition(plan) {
   return { version: 1, reason: String(manifest.reason || "").trim().slice(0, 500), issues };
 }
 
-export async function routePlannedIssue({ repository, parentIssue, plan, request }) {
+export async function routePlannedIssue({ repository, parentIssue, plan, request, defaultBranch }) {
   const decomposition = parseDecomposition(plan);
   if (!decomposition) return { action: "implement", children: [] };
 
@@ -114,5 +114,14 @@ export async function routePlannedIssue({ repository, parentIssue, plan, request
       body: { body: `Real Moises dividió este epic en sub-issues atómicos: ${numbers.map((number) => `#${number}`).join(", ")}. Empezará automáticamente por #${numbers[0]} y continuará en orden.` }
     });
   }
+  if (!defaultBranch) throw new Error("default branch is required to dispatch the first sub-issue");
+  await dispatchIssue({ base, issueNumber: numbers[0], defaultBranch, request });
   return { action: "split", children: numbers };
+}
+
+async function dispatchIssue({ base, issueNumber, defaultBranch, request }) {
+  await request(`${base}/actions/workflows/real-moises-issue-resolver.yml/dispatches`, {
+    method: "POST",
+    body: { ref: defaultBranch, inputs: { issue_number: String(issueNumber) } }
+  });
 }
