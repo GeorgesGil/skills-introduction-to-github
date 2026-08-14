@@ -1,4 +1,4 @@
-import { cp, lstat, mkdir, mkdtemp, open, readFile, readdir, realpath, rename, rm, unlink, writeFile } from "node:fs/promises";
+import { chmod, cp, lstat, mkdir, mkdtemp, open, readFile, readdir, realpath, rename, rm, unlink, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
@@ -12,6 +12,7 @@ const syncOutputs = process.env.REAL_MOISES_SYNC_OUTPUTS === "true";
 const stateRoot = path.join(process.env.RUNNER_TEMP || workspace, "real-moises", String(process.env.GITHUB_RUN_ID || "local"));
 await mkdir(stateRoot, { recursive: true });
 const isolatedRoot = await mkdtemp(path.join(stateRoot, "validation-workspace-"));
+if (!process.getuid) await chmod(isolatedRoot, 0o755);
 await cp(workspace, isolatedRoot, {
   recursive: true,
   filter(source) {
@@ -33,6 +34,7 @@ const validationModule = path.join(path.dirname(fileURLToPath(import.meta.url)),
 const image = hasQa ? PLAYWRIGHT_IMAGE : NODE_IMAGE;
 const result = spawnSync("docker", [
   "run", "--rm", "--init", "--cap-drop=ALL", "--security-opt=no-new-privileges", "--pids-limit=512", "--memory=6g", "--cpus=2", "--shm-size=1g",
+  ...(process.getuid ? ["--user", `${process.getuid()}:${process.getgid()}`] : []),
   "--mount", `type=bind,source=${isolatedRoot},target=/workspace`,
   "--mount", `type=bind,source=${worker},target=/validator.mjs,readonly`,
   "--mount", `type=bind,source=${validationModule},target=/validation.mjs,readonly`,
