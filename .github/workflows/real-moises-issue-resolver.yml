@@ -79,7 +79,7 @@ jobs:
         run: node .github/real-moises/scripts/validate-workspace.mjs
       - name: Automatic trusted-skill review and repair
         id: repair
-        if: steps.route.outputs.should_implement == 'true'
+        if: steps.route.outputs.should_implement == 'true' && steps.validate.outcome == 'failure'
         continue-on-error: true
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
@@ -88,14 +88,16 @@ jobs:
         id: revalidate
         if: steps.route.outputs.should_implement == 'true' && steps.repair.outcome == 'success'
         continue-on-error: true
+        env:
+          REAL_MOISES_SYNC_OUTPUTS: "true"
         run: node .github/real-moises/scripts/validate-workspace.mjs
       - name: Publish PR and merge after green validation
-        if: steps.route.outputs.should_implement == 'true' && steps.repair.outcome == 'success' && steps.revalidate.outcome == 'success'
+        if: steps.route.outputs.should_implement == 'true' && (steps.validate.outcome == 'success' || (steps.repair.outcome == 'success' && steps.revalidate.outcome == 'success'))
         env:
           GH_TOKEN: ${{ github.token }}
         run: node .github/real-moises/scripts/publish-and-merge.mjs
       - name: Record unresolved validation failure
-        if: steps.route.outputs.should_implement == 'true' && (steps.repair.outcome == 'failure' || steps.revalidate.outcome == 'failure')
+        if: steps.route.outputs.should_implement == 'true' && steps.validate.outcome == 'failure' && (steps.repair.outcome == 'failure' || steps.revalidate.outcome == 'failure')
         env:
           GH_TOKEN: ${{ github.token }}
         run: node .github/real-moises/scripts/report-failure.mjs
